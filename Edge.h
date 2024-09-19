@@ -1,32 +1,39 @@
-template<class V>
-struct Edge{
-        V from;
-        V to;
-        /**
-         * @brief - build a Edge object
-         * @param from -the vertex the edge out from
-         * @param to - the vertex the edge sign in
-         */
-        Edge(const V &from , const V &To){
-            this->from = from;
-            this->to = to;
-        }
+#include <iostream>
+#include <utility> // For std::pair
+#include <functional> // For std::hash
 
-        private:
-        /**
-         * @brief return true if the edges are equal
-         * @param edge1 - the first edge we equal
-         * @param edge2 - the second edge we equal
-         * @return true if the edges are equal
-         */
-        friend bool operator==(const Edge &edge1 ,const Edge &edge2) const {
-            return edge1.from == edge1.from && edge1.to == edge2.to;
-        }
+template <typename V>
+struct Edge {
+    V from; // Source vertex
+    V to;   // Destination vertex
+    /**
+     * @brief constractor new edge
+     * @param from - the vertex we out from
+     * @param to - the vertex we sign in to
+     */
+    Edge(const V &from, const V &to) : from(from), to(to) {}
+
+
+    /**
+     * @brief return true if the two edges equal
+     * @param other - the other edge we equal
+     */
+    bool operator==(const Edge<V> &other) const {
+        return from == other.from && to == other.to;
+    }
+
+   
 };
 
-template<class V>
+// Custom hash function for Edge
+template <typename V>
 struct EdgeHash {
-    std::size_t operator()(const Edge& edge) const {
-        return std::hash<int>()(edge.from) ^ std::hash<int>()(edge.to << 1);
+    /**
+     * @brief hashed edge
+     */
+    std::size_t operator()(const Edge<V> &edge) const {
+        auto hash1 = std::hash<V>()(edge.from);
+        auto hash2 = std::hash<V>()(edge.to);
+        return hash1 ^ (hash2 << 1); // Combine the two hash values
     }
 };
