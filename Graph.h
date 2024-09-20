@@ -58,6 +58,24 @@ class Graph{
         return parents;
     }
 
+    /**
+     * @brief return the din(v) of the vertex
+     * @param vertex - the vertex we search is deg
+     * @return int 
+     */
+    int degin(const V &vertex)const {
+        return Son(vertex).size();
+    }
+
+    /**
+     * @brief return the din(v) of the vertex
+     * @param vertex - the vertex we search is deg
+     * @return int 
+     */
+    int degout(const V &vertex)const {
+        return Parent(vertex).size();
+    }
+
 
     /**
      * @brief return the weight of the edge we take
