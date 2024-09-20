@@ -1,5 +1,7 @@
 #pragma once
 #include "Edge.h"
+#include <set>
+
 template<class V,class W>
 class Graph{
     public:
@@ -24,6 +26,36 @@ class Graph{
     void SetEdge(const V &from ,const V &to,const W& weight){
         Edge<V> edge(from,to);
         graph[edge] = weight;
+    }
+
+    /**
+     * @brief return a set of vertex that goes parent -> other vertex
+     * @param parent - the vertex we want to find who the vertex parent
+     * @return a set of sons of parent
+     */
+    set<V> Parent(const V &parent) const {
+        set<V> sons;
+        for(const auto pair:graph){
+            if(pair.first.from == parent){
+                sons.insert(pair.first.to);
+            }
+        }
+        return sons;
+    }
+    
+    /**
+     * @brief return the parents of the son vertex
+     * @param son - the vertex we search his parents
+     * @return a set of parents of the son vertex
+     */
+    set<V> Son(const V &son) const {
+        set<V> parents;
+        for(const auto pair: graph){
+            if(pair.first.to == son){
+                parents.insert(pair.first.from);
+            }
+        }
+        return parents;
     }
 
 
