@@ -3,9 +3,7 @@
 #include <set>
 #include <algorithm> // for std::max and std::min
 #include <iostream> // For std::cout
-
-
-
+#include "Exception/ExceptionGraph/EdgeNotExsit.h"
 template<class V,class W>
 class Graph{
     public:
@@ -61,6 +59,21 @@ class Graph{
             }
         }
         return parents;
+    }
+
+
+    /**
+     * @brief if the edge exsit delete it
+     * otherwise it nothing happend
+     * @param from - the vertex we out from 
+     * @param to - the vertex get in to
+     */
+    void deleteEdge(const V& from,const V& to){
+        if(!ContainEdge(from,to)){
+            return;
+        }
+        Edge edge(from,to);
+        graph.erase(edge);
     }
 
     /**
@@ -142,6 +155,23 @@ class Graph{
     W& operator()(const V& from, const V& to) {
         Edge edge(from,to);
         return graph[edge];
+    }
+
+
+    /**
+     * @brief return the weight of the edge we take by const
+     * therefore the edge must be on the graph
+     * @param from - the vertex we out
+     * @param to - the vertex we sign in
+     * @return refernce of the weight 
+     */
+    const W& operator()(const V& from, const V& to) const{
+        if(!ContainEdge(from,to)){
+            throw EdgeNotExsit();
+        }
+        Edge edge(from,to);
+        auto it = graph.find(edge);
+        return it->second;
     }
 
     private:
