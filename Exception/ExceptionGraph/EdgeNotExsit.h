@@ -5,5 +5,5 @@ using namespace std;
 
 class EdgeNotExsit :public runtime_error{
     public:
-    EdgeNotExsit():runtime_error("the edge don't exsit"){}
+    EdgeNotExsit();
 };

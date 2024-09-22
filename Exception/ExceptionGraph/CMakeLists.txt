@@ -1,4 +1,4 @@
-set(GRAPHEXCEPTION_SOURCES example.cpp)  # Replace with actual filenames
+set(GRAPHEXCEPTION_SOURCES EdgeNotExsit.cpp)  # Replace with actual filenames
 # Create a library from these sources
 add_library(GraphExceptionLib ${GRAPHEXCEPTION_SOURCES})
 
