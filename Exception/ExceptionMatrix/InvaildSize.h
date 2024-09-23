@@ -1,13 +1,13 @@
 #pragma once
 #include <stdexcept> 
 #include <string>
-using namespace std; 
+using namespace std;
 
-class InvaildSize:public invalid_argument{
+class InvaildSize : public std::invalid_argument {
     public:
-        /**
-         * @brief constractor of matrix out
-         * of range
-         */
         InvaildSize();
-}
+
+    private:
+        static const std::string msg; // Declaration of the static const string
+};
+

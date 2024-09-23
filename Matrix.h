@@ -6,6 +6,8 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include "Exception/ExceptionMatrix/OperatorPlusException.h"
+#include "Exception/ExceptionMatrix/OperatorException.h"
 
 template<class T>
 class Matrix{
@@ -25,6 +27,7 @@ class Matrix{
         this->m = m;
         CalcEpsilon(accuracy);
     }
+
 
     /**
      * @brief  that return a specific val
@@ -48,7 +51,15 @@ class Matrix{
      * the sum
      */
     Matrix<T>& operator+=(const Matrix<T> &other){
+        if(n != other.n || m != other.m){
+            throw OperatorPlusException(m,n,other.m,other.n);
+        }
         
+        for(auto it = other.data.begin();it != other.data.end();++it){
+            this->operator()(it->first.from,it->first.to,
+            it->second + this->operator()(it->first.from,it->first.to));
+        }
+        return *this;
     }
 
     /**
@@ -67,6 +78,21 @@ class Matrix{
         }
         data(i,j) = val;
     }
+
+    
+    /**
+     * @brief get the number of rows of 
+     * the matrix
+     * @return int
+     */
+    int GetRowSize()const{return m;}
+
+    /**
+     * @brief get the number of cols of 
+     * the matrix
+     * @return int
+     */
+    int GetColSize()const{return n;}
 
     private:
     Graph<int,T> data;
@@ -110,6 +136,8 @@ class Matrix{
         double minusep = -ep;
         return (minusep <= val && val <= ep);
     }
+
+
 
 
     /**

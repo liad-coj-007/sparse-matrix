@@ -112,6 +112,7 @@ class Graph{
         }
     }
 
+
     template<class Function>
     /**
      * @brief build a graph that his vertex are
@@ -131,6 +132,7 @@ class Graph{
             }
         }
     }
+
     template<class Function>
     /**
      * @brief build a graph that [V(),maxvertex]
@@ -143,6 +145,60 @@ class Graph{
         { // Delegating constructor using initializer list
     }
 
+    class Iterator{
+        private:
+        const Graph *graph;
+        using InnerIterator = typename std::unordered_map<Edge<V>, 
+        W,EdgeHash<V>>::const_iterator;
+        InnerIterator it;
+        friend class Graph;
+        public:
+        /**
+         * @brief operator* it
+         * @return pair of edge and weight
+         */
+        const pair<Edge<V>,W>& operator*() const {
+            return *it;
+        }
+
+        /**
+         * @brief get the next val
+         * @return it
+         */
+        Iterator& operator++(){
+            if(it == graph->graph.end()){
+                return *this;
+            }
+            ++it;
+            return *this;
+        }
+
+        /**
+         * @brief return true if it isn't the same
+         * it
+         */
+        bool operator!=(const Iterator &other) const {
+            return it != other.it;
+        }
+
+        /**
+         * @brief constractor of it
+         * @param graph -the graph we iterate
+         * @param graphit - the it of unorderd map
+         */
+        Iterator(const Graph *graph,InnerIterator it){
+            this->graph = graph;
+            this->it = it;
+        }
+
+        /**
+         * @brief  operator->
+         */
+        const std::pair<const Edge<V>, W>* operator->() const {
+            return &(*it);
+        }
+        
+    };
     //default constractor
     Graph() = default;
 
@@ -157,6 +213,22 @@ class Graph{
         return graph[edge];
     }
 
+    /**
+     * @brief return the begin it of the graph
+     * @return iterator
+     */
+    Iterator begin() const {
+        return Graph::Iterator(this,graph.begin());
+    }
+
+
+    /**
+     * @brief return the end it of the graph
+     * @return iterator
+     */
+    Iterator end() const{
+        return  Graph::Iterator(this,graph.end());
+    }
 
     /**
      * @brief return the weight of the edge we take by const
@@ -192,5 +264,4 @@ class Graph{
         SetEdge(from,to,weight);
     }
 };
-
 

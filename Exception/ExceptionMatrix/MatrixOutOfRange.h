@@ -15,4 +15,4 @@ class MatrixOutOfRange:public runtime_error{
          */
         MatrixOutOfRange(const int i,const int j,
         const int m,const int n);
-}
+};
