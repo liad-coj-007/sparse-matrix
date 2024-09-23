@@ -91,8 +91,7 @@ class Matrix{
             cout << ") = " << it->second << endl;
         }
     }
-
-    
+   
     /**
      * @brief get the number of rows of 
      * the matrix
@@ -215,8 +214,6 @@ class Matrix{
         && mat1.GetColSize() == mat2.GetColSize()
         && mat1.data == mat2.data;
     }
-
-
 };
 
 
@@ -229,12 +226,12 @@ template<class T>
  */
 Matrix<T> operator+(const Matrix<T> &mat1,const Matrix<T> &mat2){
     if(mat1.MemoryUseage() <= mat2.MemoryUseage()){
-        Matrix sum = mat1;
-        sum += mat2;
+        Matrix sum = mat2;
+        sum += mat1;
         return sum;
     }
-    Matrix sum = mat2;
-    sum += mat1;
+    Matrix sum = mat1;
+    sum += mat2;
     return sum;
 }
 
