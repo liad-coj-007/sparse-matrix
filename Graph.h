@@ -202,6 +202,23 @@ class Graph{
     //default constractor
     Graph() = default;
 
+
+    /**
+     * @brief return the number of
+     * edges on the graph
+     * @return int
+     */
+    int size()const{
+        return graph.size();
+    }
+
+    size_t memoryUseage() const {
+        size_t total = 0;
+        total += sizeof(graph);
+        total += graph.size() * sizeof(pair<Edge<V>,W>); 
+        return total;
+    }
+
     /**
      * @brief return the weight of the edge we take
      * @param from - the vertex we out
@@ -262,6 +279,17 @@ class Graph{
             }
         }
         SetEdge(from,to,weight);
+    }
+
+    /**
+     * @brief equal to graph and return true if are the same
+     * @param graph1 - the first graph we equal
+     * @param graph2 - the second graph we equal
+     * @return a bool val if they equal
+     */
+    friend bool operator==(const Graph &graph1, 
+    const Graph &graph2){
+        return graph1.graph == graph2.graph;
     }
 };
 

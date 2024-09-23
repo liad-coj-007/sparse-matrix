@@ -54,7 +54,7 @@ class Matrix{
         if(n != other.n || m != other.m){
             throw OperatorPlusException(m,n,other.m,other.n);
         }
-        
+
         for(auto it = other.data.begin();it != other.data.end();++it){
             this->operator()(it->first.from,it->first.to,
             it->second + this->operator()(it->first.from,it->first.to));
@@ -79,6 +79,19 @@ class Matrix{
         data(i,j) = val;
     }
 
+    /**
+     * @brief print 
+     * the sparse matrix
+     * we ignore zeros 
+     */
+    void PrintSparse()const{
+        cout << formatSize() << endl;
+        for(auto it = data.begin();it != data.end();++it){
+            cout << "(" << it->first.from <<", " << it->first.to;
+            cout << ") = " << it->second << endl;
+        }
+    }
+
     
     /**
      * @brief get the number of rows of 
@@ -93,6 +106,29 @@ class Matrix{
      * @return int
      */
     int GetColSize()const{return n;}
+    /**
+     * @brief get the memory usage of the matrix
+     * @return int 
+     */
+    size_t MemoryUseage() const{
+        return data.memoryUseage();
+    }
+
+    /**
+     * @brief return sparse matrix data by graph
+     * return graph referance
+     */
+    const Graph<int,T>& GetMatrixByGraph() const{
+        return data;
+    }
+
+     /**
+     * @brief return -matix
+     * @return matrix
+     */
+    Matrix<T> operator-() const{
+        return -1*(*this);
+    }
 
     private:
     Graph<int,T> data;
@@ -110,7 +146,7 @@ class Matrix{
             throw MatrixOutOfRange(i,j,m,n);
         }
     }
-
+   
 
     /**
      * @brief calc the ep for save memory of
@@ -131,14 +167,13 @@ class Matrix{
     /**
      * @brief return true if the val is on ep enviroment
      * thus we don't need to save this data
+     * @param val - the val we check if he is
+     * default val for the system
      */
     virtual bool isDefualtVal(const T &val){
         double minusep = -ep;
         return (minusep <= val && val <= ep);
     }
-
-
-
 
     /**
      * @brief format size for print
@@ -149,7 +184,6 @@ class Matrix{
         os << m << "x" << n;
         return os.str();
     }
-
 
     /**
      * @brief print operator of matrix
@@ -171,4 +205,62 @@ class Matrix{
         return os;
     }
 
+    /**
+     * @brief equal to matrixs and return true if they equal
+     * @param mat1 - the first matrix we equal
+     * @param mat2 - the second matrix we equal
+     */
+    friend bool operator==(const Matrix &mat1,const Matrix &mat2){
+        return mat1.GetRowSize() == mat2.GetRowSize()
+        && mat1.GetColSize() == mat2.GetColSize()
+        && mat1.data == mat2.data;
+    }
+
+
 };
+
+
+template<class T>
+/**
+ * @brief operator + for matrix sum
+ * @param mat1 - the first mat we sum
+ * @param mat2 - the second mat we sum
+ * @return 
+ */
+Matrix<T> operator+(const Matrix<T> &mat1,const Matrix<T> &mat2){
+    if(mat1.MemoryUseage() <= mat2.MemoryUseage()){
+        Matrix sum = mat1;
+        sum += mat2;
+        return sum;
+    }
+    Matrix sum = mat2;
+    sum += mat1;
+    return sum;
+}
+
+template<class T>
+/**
+ * @brief get exp and matrix and return exp*mat
+ * @param exp - the exp we take
+ * @package mat -the matrix we *
+ * @return a matrix that equal mat*exp
+ */
+Matrix<T> operator*(const T &exp,const Matrix<T> &mat){
+    Matrix<T> newmat(mat.GetRowSize(),mat.GetColSize());
+    const Graph<int,T>& graph = mat.GetMatrixByGraph();
+    for(auto it = graph.begin();it != graph.end();++it){
+        newmat(it->first.from,it->first.to,exp*(it->second));
+    }
+    return newmat;
+}
+
+template<class T>
+/**
+ * @brief get exp and matrix and return exp*mat
+ * @param exp - the exp we take
+ * @package mat -the matrix we *
+ * @return a matrix that equal mat*exp
+ */
+Matrix<T> operator*(const Matrix<T> &mat,const T &exp){
+    return exp*mat;
+}
