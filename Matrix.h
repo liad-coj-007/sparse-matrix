@@ -8,6 +8,7 @@
 #include <iomanip>
 #include "Exception/ExceptionMatrix/OperatorPlusException.h"
 #include "Exception/ExceptionMatrix/OperatorException.h"
+#include "Exception/ExceptionMatrix/OperatorMultiplyException.h"
 
 template<class T>
 class Matrix{
@@ -114,6 +115,15 @@ class Matrix{
     }
 
     /**
+     * @brief set the acc of the matrix
+     * @param accuracy - if we want the matrix
+     * have accuracy or not
+     */
+    void SetAccuracy(const bool accuracy){
+        CalcEpsilon(accuracy);
+    }
+
+    /**
      * @brief return sparse matrix data by graph
      * return graph referance
      */
@@ -127,6 +137,16 @@ class Matrix{
      */
     Matrix<T> operator-() const{
         return -1*(*this);
+    }
+
+    /**
+     * @brief return matrix multipcation
+     * @param other - the other matrix we calc
+     * @return matrix refernce
+     */
+    Matrix<T>& operator*=(const Matrix<T> &other){
+        *this = (*this)*other;
+         return *this;
     }
 
     private:
@@ -260,4 +280,33 @@ template<class T>
  */
 Matrix<T> operator*(const Matrix<T> &mat,const T &exp){
     return exp*mat;
+}
+
+
+template<class T>
+/**
+ * @brief do matrix multiplication
+ * @param A - the first matrix we multiplicate
+ * @param B - the second matriw we multiplicate
+ * @return A*B
+ */
+Matrix<T> operator*(const Matrix<T> &A,const Matrix<T> &B){
+    if(A.GetColSize() != B.GetRowSize()){
+        throw OperatorMultiplyException(
+              A.GetRowSize(),A.GetColSize(),
+              B.GetRowSize(),B.GetColSize()
+        );
+    }
+    Matrix<T> C(A.GetRowSize(),B.GetColSize(),true);
+    const Graph<int,T> & ga = A.GetMatrixByGraph();
+    unordered_map<int,set<int>> parentmap_b
+    = B.GetMatrixByGraph().OrderParents();
+    for(auto i = ga.begin(); i != ga.end(); ++i){
+        for(const auto j : parentmap_b[i->first.to]){
+            C(i->first.from,j,i->second *B(i->first.to,j) + 
+            C(i->first.from,j));
+        }
+    }
+    C.SetAccuracy(false);
+    return C;
 }

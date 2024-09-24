@@ -31,34 +31,49 @@ class Graph{
         graph[edge] = weight;
     }
 
+     /**
+     * @brief order parents that all son have set of his 
+     * sons
+     * @return unorderd map of sets
+     */
+    unordered_map<V,set<V>> OrderParents() const{
+        unordered_map<V,set<V>> parentmap;
+        for(const auto pair:graph){
+            parentmap[pair.first.from].insert(pair.first.to);
+        }
+        return parentmap;
+    }
+
     /**
      * @brief return a set of vertex that goes parent -> other vertex
      * @param parent - the vertex we want to find who the vertex parent
      * @return a set of sons of parent
      */
     set<V> Parent(const V &parent) const {
-        set<V> sons;
-        for(const auto pair:graph){
-            if(pair.first.from == parent){
-                sons.insert(pair.first.to);
-            }
-        }
-        return sons;
+        return OrderParents()[parent];
     }
-    
+
+
+    /**
+     * @brief order sons that all son have set of his 
+     * parents
+     * @return unorderd map of sets
+     */
+    unordered_map<V,set<V>> OrderSons() const{
+        unordered_map<V,set<V>> sonmap;
+         for(const auto pair: graph){
+            sonmap[pair.first.to].insert(pair.first.from);
+         }
+         return sonmap;
+    }
+
     /**
      * @brief return the parents of the son vertex
      * @param son - the vertex we search his parents
      * @return a set of parents of the son vertex
      */
     set<V> Son(const V &son) const {
-        set<V> parents;
-        for(const auto pair: graph){
-            if(pair.first.to == son){
-                parents.insert(pair.first.from);
-            }
-        }
-        return parents;
+        return OrderSons()[son];
     }
 
 
