@@ -149,6 +149,19 @@ class Matrix{
          return *this;
     }
 
+    
+    /**
+     * @brief return a transpose matrix
+     * @return matrix
+     */
+    Matrix<T> operator~() const {
+        Matrix<T> transpose_mat(n,m);
+        for( auto it = data.begin();it != data.end();++it){
+            transpose_mat(it->first.to,it->first.from,it->second);
+        }
+        return transpose_mat;
+    }
+
     private:
     Graph<int,T> data;
     static constexpr T defaultvalue = T();
@@ -165,7 +178,8 @@ class Matrix{
             throw MatrixOutOfRange(i,j,m,n);
         }
     }
-   
+
+
 
     /**
      * @brief calc the ep for save memory of
@@ -310,3 +324,4 @@ Matrix<T> operator*(const Matrix<T> &A,const Matrix<T> &B){
     C.SetAccuracy(false);
     return C;
 }
+
