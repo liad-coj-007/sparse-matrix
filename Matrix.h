@@ -9,6 +9,10 @@
 #include "Exception/ExceptionMatrix/OperatorPlusException.h"
 #include "Exception/ExceptionMatrix/OperatorException.h"
 #include "Exception/ExceptionMatrix/OperatorMultiplyException.h"
+#include <initializer_list>
+#include <type_traits>
+
+
 
 template<class T>
 class Matrix{
@@ -131,6 +135,32 @@ class Matrix{
         return data;
     }
 
+    template<typename ...Args>
+    /**
+     * @brief set coefficent of matrix by order
+     * @param row - the row we start to change
+     * @param args - the arguments we need to add
+     */
+    void setCoefficent(const int row,Args ...args){
+        pair<int,int> pair = {row,1};
+        setCoefficent(pair,args...);
+    }
+
+    template<typename ...Args>
+    /**
+     * @brief set coffienct of matrix by order
+     * @param pos - the (row,col) we start with
+     * @param value - the value we put
+     * @param args - the other values
+     */
+    void setCoefficent(pair<int,int> pos,const T &value,Args... args){
+        isAccessAble(pos.first,pos.second);
+        this->operator()(pos.first,pos.second,value);
+        GetNext(pos);
+        setCoefficent(pos,args...);
+    }
+
+
      /**
      * @brief return -matix
      * @return matrix
@@ -179,8 +209,27 @@ class Matrix{
         }
     }
 
+    /**
+     * @brief defualt setcoefficent
+     */
+    void setCoefficent(pair<int,int> pos){}
 
+    /**
+     * @brief set the pos be the next
+     * entry of the matrix
+     */
+    void GetNext(pair<int,int> &pos){
+        if(pos.second < n){
+            pos.second++;
+            return;
+        }
+        pos.first++;
+        pos.second = 1;
+    }
 
+  
+
+   
     /**
      * @brief calc the ep for save memory of
      * the matrix
