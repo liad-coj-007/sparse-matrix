@@ -366,6 +366,10 @@ class Matrix{
         return os;
     }
 
+    void Print(ostream &os){
+
+    }
+
     /**
      * @brief equal to matrixs and return true if they equal
      * @param mat1 - the first matrix we equal
