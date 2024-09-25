@@ -9,6 +9,8 @@
 #include "Exception/ExceptionMatrix/OperatorPlusException.h"
 #include "Exception/ExceptionMatrix/OperatorException.h"
 #include "Exception/ExceptionMatrix/OperatorMultiplyException.h"
+#include "Exception/ExceptionMatrix/ConversionException.h"
+
 template<class T>
 class Matrix{
     public:
@@ -28,6 +30,35 @@ class Matrix{
         CalcEpsilon(accuracy);
     }
 
+    template<class Function>
+    /**
+     * @brief constrats matrix based on function
+     * @param m - number of rows
+     * @param n - number of cols
+     * @param accuracy - if the user want acc or ready
+     * @param function - the function that
+     * calc the vals of the matrix
+     */
+    Matrix(const int m,const int n,
+     Function &function,bool accuracy = false):Matrix(m,n,accuracy){
+        for(int i = 1; i <= GetRowSize();i++){
+            for(int j = 1; j <= GetColSize();j++){
+                this->operator()(i,j,function(i,j));
+            }
+        }
+    }
+
+    /**
+     * @brief build 1x1 matrix
+     * @param val - the val on the
+     * matrix
+     */
+    Matrix(const T &val){
+        m = 1;
+        n = 1;
+        CalcEpsilon(false);
+        this->operator()(m,n,val);
+    }
 
     /**
      * @brief  that return a specific val
@@ -59,6 +90,13 @@ class Matrix{
             it->second + this->operator()(it->first.from,it->first.to));
         }
         return *this;
+    }
+
+    operator T()const {
+        if(m != 1 || n != 1){
+            throw ConversionException();
+        }  
+        return this->operator()(m,n);
     }
 
     /**
