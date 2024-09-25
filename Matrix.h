@@ -53,7 +53,7 @@ class Matrix{
      * @param val - the val on the
      * matrix
      */
-    Matrix(const T &val){
+    explicit Matrix(const T &val){
         m = 1;
         n = 1;
         CalcEpsilon(false);
@@ -92,7 +92,7 @@ class Matrix{
         return *this;
     }
 
-    operator T()const {
+    operator T() const {
         if(m != 1 || n != 1){
             throw ConversionException();
         }  
