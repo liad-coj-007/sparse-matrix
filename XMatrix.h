@@ -24,6 +24,12 @@ class XMatrix{
     }
 
     template<class T>
+    /**
+     * @brief fill matrix with specific value
+     * @param m - number of rows
+     * @param n - number of cols
+     * @param value - the value we fill with
+     */
     static Matrix<T> FillMatrix(const int m,const int n,const T &value){
         auto function = [value](const int i,
         const int j){return value;};
@@ -31,9 +37,21 @@ class XMatrix{
         return matrix;
     }
 
+    /**
+     * @brief return of matrix fill by ones
+     * @param m - the number of rows
+     * @param n - number of cols
+     * 
+     */
     static Matrix<double> Ones(const int m ,const int n);
 
     template<class T,typename ...Args>
+    /**
+     * @brief set the diagonal from the start of the matrix
+     * @param matrix - the matrix we want to change
+     * @param args - the values we want to put in
+     * the matrix
+     */
     static void Diagonal(Matrix<T> &matrix,Args ...args){
         Diagonal(1,matrix,args...);
     }
@@ -70,6 +88,12 @@ class XMatrix{
     static Matrix<double> Identity(const int size);
     private:
     template<class T,typename ...Args>
+    /**
+     * @brief default diagonal set
+     * don't do nothing
+     * @param row - the row we change
+     * @param matrix the matrix we change
+     */
     static void Diagonal(int row,Matrix<T> &matrix){}
 
 };
