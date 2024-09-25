@@ -11,6 +11,7 @@
 #include "Exception/ExceptionMatrix/OperatorMultiplyException.h"
 #include "Exception/ExceptionMatrix/ConversionException.h"
 
+
 template<class T>
 class Matrix{
     public:
@@ -166,31 +167,30 @@ class Matrix{
     const Graph<int,T>& GetMatrixByGraph() const{
         return data;
     }
-    template<class Iterator>
 
+    template<class Iterator>
     /**
      * @brief set matrix val by a iterator
      * @param row the first row we put value
      * @param begin - the first val we add
      * @param end - the last val we didn't add him
      */
-    void setCoefficent(int row,const Iterator &begin,
+    void setIterator(int row,const Iterator &begin,
     const Iterator &end){
         pair<int,int> pos = {row,1};
-        setCoefficent(pos,begin,end);
+        setIterator(pos,begin,end);
     }
-
     template<class Iterator>
+
      /**
      * @brief set matrix val by a iterator  on the begining
      * of the matrix
      * @param begin - the first val we add
      * @param end - the last val we didn't add him
      */
-    void setCoefficent(const Iterator &begin,const Iterator &end){
-        setCoefficent(1,begin,end);
+    void setIterator(const Iterator &begin,const Iterator &end){
+        setIterator(1,begin,end);
     }
-
     template<class Iterator>
     /**
      * @brief set matrix val by a iterator
@@ -198,11 +198,10 @@ class Matrix{
      * @param begin - the first val we add
      * @param end - the last val we didn't add him
      */
-    void setCoefficent(pair<int,int> pos ,const Iterator &begin,
-    const Iterator &end){
+    void setIterator(pair<int,int> pos ,Iterator begin, Iterator end){
         for(auto it = begin; it != end; ++it){
             this->operator()(pos.first,pos.second,*it);
-            GetNext(pos);
+            pos = GetNext(pos);
         }
     }
 
@@ -224,11 +223,18 @@ class Matrix{
      * @param value - the value we put
      * @param args - the other values
      */
-    void setCoefficent(pair<int,int> pos,const T &value,Args... args){
-        isAccessAble(pos.first,pos.second);
-        this->operator()(pos.first,pos.second,value);
-        GetNext(pos);
-        setCoefficent(pos,args...);
+    void setCoefficent(const pair<int,int> pos,const T &value,Args... args){
+        T oldvalue;
+        try{
+            oldvalue = this->operator()(pos.first,pos.second);
+             this->operator()(pos.first,pos.second,value);
+             setCoefficent(GetNext(pos),args...);
+        }catch(const exception &e){
+            if(pos.first <= m && pos.second <= n){
+                this->operator()(pos.first,pos.second,oldvalue);
+            }
+            throw;
+        }
     }
 
 
@@ -283,19 +289,21 @@ class Matrix{
     /**
      * @brief defualt setcoefficent
      */
-    void setCoefficent(pair<int,int> pos){}
+    void setCoefficent(const pair<int,int> pos){}
 
     /**
      * @brief set the pos be the next
      * entry of the matrix
      */
-    void GetNext(pair<int,int> &pos){
-        if(pos.second < n){
-            pos.second++;
-            return;
+    pair<int,int> GetNext(const pair<int,int> &pos){
+        pair<int,int> newpos = pos;
+        if(newpos.second < n){
+            newpos.second++;
+            return newpos;
         }
-        pos.first++;
-        pos.second = 1;
+        newpos.first++;
+        newpos.second = 1;
+        return newpos;
     }
 
   
