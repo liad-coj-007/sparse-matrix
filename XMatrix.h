@@ -5,8 +5,6 @@ using namespace std;
 
 class XMatrix{
     public:
- 
-
     /**
      * @brief build a diagonal matrix
      * @param m - the number of rows
@@ -24,17 +22,30 @@ class XMatrix{
         }
         return matrix;
     }
+
+    template<class T>
+    static Matrix<T> FillMatrix(const int m,const int n,const T &value){
+        auto function = [value](const int i,
+        const int j){return value;};
+        Matrix<T> matrix(m,n,function);
+        return matrix;
+    }
+
+    static Matrix<double> Ones(const int m ,const int n);
+
     template<class T,typename ...Args>
     static void Diagonal(Matrix<T> &matrix,Args ...args){
         Diagonal(1,matrix,args...);
     }
+
     template<class T,typename ...Args>
     /**
      * @brief set the daigonal of the matrix
      * @param row - the row we start to change the
      * diagonal
      * @param matrix - the matrix we change
-     * @ 
+     * @param value - the value we put 
+     * on the matrix 
      */
     static void Diagonal(const int row ,Matrix<T> &matrix,const T &value,
     Args ... args){
@@ -56,7 +67,7 @@ class XMatrix{
      * @brief build the identity matrix
      * @return matrix
      */
-    static Matrix<double> Identity(const int size) ;
+    static Matrix<double> Identity(const int size);
     private:
     template<class T,typename ...Args>
     static void Diagonal(int row,Matrix<T> &matrix){}
