@@ -9,11 +9,6 @@
 #include "Exception/ExceptionMatrix/OperatorPlusException.h"
 #include "Exception/ExceptionMatrix/OperatorException.h"
 #include "Exception/ExceptionMatrix/OperatorMultiplyException.h"
-#include <initializer_list>
-#include <type_traits>
-
-
-
 template<class T>
 class Matrix{
     public:
@@ -48,7 +43,6 @@ class Matrix{
         }
         return defaultvalue;
     }
-
 
     /**
      * @brief do operator + for two matrix
@@ -133,6 +127,45 @@ class Matrix{
      */
     const Graph<int,T>& GetMatrixByGraph() const{
         return data;
+    }
+    template<class Iterator>
+
+    /**
+     * @brief set matrix val by a iterator
+     * @param row the first row we put value
+     * @param begin - the first val we add
+     * @param end - the last val we didn't add him
+     */
+    void setCoefficent(int row,const Iterator &begin,
+    const Iterator &end){
+        pair<int,int> pos = {row,1};
+        setCoefficent(pos,begin,end);
+    }
+
+    template<class Iterator>
+     /**
+     * @brief set matrix val by a iterator  on the begining
+     * of the matrix
+     * @param begin - the first val we add
+     * @param end - the last val we didn't add him
+     */
+    void setCoefficent(const Iterator &begin,const Iterator &end){
+        setCoefficent(1,begin,end);
+    }
+
+    template<class Iterator>
+    /**
+     * @brief set matrix val by a iterator
+     * @param pair the first index we get to
+     * @param begin - the first val we add
+     * @param end - the last val we didn't add him
+     */
+    void setCoefficent(pair<int,int> pos ,const Iterator &begin,
+    const Iterator &end){
+        for(auto it = begin; it != end; ++it){
+            this->operator()(pos.first,pos.second,*it);
+            GetNext(pos);
+        }
     }
 
     template<typename ...Args>
