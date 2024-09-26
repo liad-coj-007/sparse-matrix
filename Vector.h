@@ -32,6 +32,7 @@ class Vector:public Matrix<T>{
     const T& operator[](const int row)const {
         return Matrix<T>::operator()(row,1);
     }
+    
     /**
      * @brief return the size of the vector
      * @return int
@@ -49,6 +50,4 @@ class Vector:public Matrix<T>{
     void operator()(const int row,const T &value){
         Matrix<T>::operator()(row,1,value);
     }
-
-
 };

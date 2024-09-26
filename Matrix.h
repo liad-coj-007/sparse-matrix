@@ -1,3 +1,4 @@
+#pragma once
 #include "Graph.h"
 #include "Exception/ExceptionMatrix/MatrixOutOfRange.h"
 #include "Exception/ExceptionMatrix/InvaildSize.h"
@@ -10,6 +11,9 @@
 #include "Exception/ExceptionMatrix/OperatorException.h"
 #include "Exception/ExceptionMatrix/OperatorMultiplyException.h"
 #include "Exception/ExceptionMatrix/ConversionException.h"
+template<class T>
+class Vector; // Forward declaration
+
 
 
 template<class T>
@@ -93,12 +97,7 @@ class Matrix{
         return *this;
     }
 
-    operator T() const {
-        if(m != 1 || n != 1){
-            throw ConversionException();
-        }  
-        return this->operator()(m,n);
-    }
+    
 
     /**
      * @brief set a new value to the matrix
@@ -237,7 +236,6 @@ class Matrix{
         }
     }
 
-
      /**
      * @brief return -matix
      * @return matrix
@@ -256,7 +254,6 @@ class Matrix{
          return *this;
     }
 
-    
     /**
      * @brief return a transpose matrix
      * @return matrix
@@ -267,6 +264,32 @@ class Matrix{
             transpose_mat(it->first.to,it->first.from,it->second);
         }
         return transpose_mat;
+    }
+
+    /**
+     * @brief convert the matrix
+     * to vector
+     */
+    operator Vector<T>() const {
+        if(n != 1){
+            throw ConversionException();
+        }
+        Vector<T> vector(m);
+        for( auto it = data.begin(); it != data.end(); ++it){
+            vector(it->first.from,it->second);
+        }
+        return vector;
+    }
+
+    /**
+     * @brief conversion
+     * the matrix 1x1 to val T
+     */
+    operator T() const {
+        if(m != 1 || n != 1){
+            throw ConversionException();
+        }  
+        return this->operator()(m,n);
     }
 
     private:
@@ -306,9 +329,6 @@ class Matrix{
         return newpos;
     }
 
-  
-
-   
     /**
      * @brief calc the ep for save memory of
      * the matrix
@@ -366,10 +386,6 @@ class Matrix{
         return os;
     }
 
-    void Print(ostream &os){
-
-    }
-
     /**
      * @brief equal to matrixs and return true if they equal
      * @param mat1 - the first matrix we equal
@@ -381,6 +397,7 @@ class Matrix{
         && mat1.data == mat2.data;
     }
 };
+
 
 
 template<class T>
