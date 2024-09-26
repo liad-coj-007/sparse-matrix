@@ -13,7 +13,8 @@
 #include "Exception/ExceptionMatrix/ConversionException.h"
 template<class T>
 class Vector; // Forward declaration
-
+template<class T>
+class LowTriangular;
 
 
 template<class T>
@@ -97,7 +98,7 @@ class Matrix{
         return *this;
     }
 
-    
+    virtual ~Matrix() = default;
 
     /**
      * @brief set a new value to the matrix
@@ -275,10 +276,39 @@ class Matrix{
             throw ConversionException();
         }
         Vector<T> vector(m);
-        for( auto it = data.begin(); it != data.end(); ++it){
-            vector(it->first.from,it->second);
-        }
+        vector.data = data;
         return vector;
+    }
+
+
+    /**
+     * @brief return true if this matrix 
+     * is low traingle
+     */
+    bool isLowTraingle()const {
+        if(m != n){
+            return false;
+        }
+
+        for(auto it = data.begin(); it != data.end();++it){
+            if(it->first.from < it->first.to){
+                return false;
+            }
+        }
+        return true;
+    }
+    /**
+     * @brief low trinagular
+     * conversion
+     */
+    operator LowTriangular<T>() const{
+        if(!isLowTraingle()){
+            throw ConversionException();
+        }
+
+        LowTriangular<T> lowtraingle(n);
+        lowtraingle.data = data;
+        return lowtraingle;
     }
 
     /**
@@ -308,6 +338,7 @@ class Matrix{
             throw MatrixOutOfRange(i,j,m,n);
         }
     }
+ 
 
     /**
      * @brief defualt setcoefficent
