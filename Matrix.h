@@ -105,7 +105,7 @@ class Matrix{
      * @param j - the col we want to change
      * @param val - the val we change to
      */
-    void operator()(const int i,const int j,const T &val){
+    virtual void operator()(const int i,const int j,const T &val){
         isAccessAble(i,j);
         if(isDefualtVal(val)){
             if(data.ContainEdge(i,j)){

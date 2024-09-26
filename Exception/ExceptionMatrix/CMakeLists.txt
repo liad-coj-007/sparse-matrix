@@ -1,7 +1,7 @@
 set(EXCEPTIONMATRIX_SOURCES InvaildSize.cpp 
 MatrixOutOfRange.cpp OperatorException.cpp 
 OperatorPlusException.cpp OperatorMultiplyException.cpp
-ConversionException.cpp)  # Replace with actual filenames
+ConversionException.cpp NoSoultion.cpp)  # Replace with actual filenames
 # Create a library from these sources
 add_library(ExceptionMatrixLib ${EXCEPTIONMATRIX_SOURCES})
 

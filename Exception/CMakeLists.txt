@@ -10,8 +10,9 @@ target_include_directories(ExceptionLib PUBLIC
     ${CMAKE_SOURCE_DIR}/TestException  # Include TestException directory
     ${CMAKE_SOURCE_DIR}/ExceptionGraph 
     ${CMAKE_SOURCE_DIR}/ExceptionMatrix 
+    ${CMAKE_SOURCE_DIR}/SpecailMatrixException
 
 )
 # Link ExceptionTestLib to ExceptionLib
 target_link_libraries(ExceptionLib PUBLIC ExceptionTestLib PUBLIC GraphExceptionLib
-ExceptionMatrixLib)
+ExceptionMatrixLib PUBLIC SpecailExceptionLib)
