@@ -50,6 +50,10 @@ template <class T>
  */
 Vector<T> operator/(const UpperTraingular<T> &A,const Vector<T> &b){
     T defaultval = T();
+    if(b.GetRowSize() != A.GetColSize()){
+        throw NoSoultion<T>(A,b);
+    }
+
     Vector<T> x(A.GetColSize());
     unordered_map<int,set<int>> parentmap = 
     A.GetMatrixByGraph().OrderParents();
@@ -60,12 +64,11 @@ Vector<T> operator/(const UpperTraingular<T> &A,const Vector<T> &b){
                 cordinate -= x[j]*A(i,j);
             }
         }
-
         if(cordinate == defaultval){
             //because it sparse vector
             continue;
         }else if(A(i,i) == defaultval){
-            throw NoSoultion();
+            throw NoSoultion<T>(A,b);
         }else{
             x(i, cordinate / A(i, i));
         }

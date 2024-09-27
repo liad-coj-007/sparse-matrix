@@ -49,6 +49,9 @@ template <class T>
  * @return vector x that represent the solution
  */
 Vector<T> operator/(const LowTriangular<T> &A,const Vector<T> &b){
+    if(b.GetRowSize() != A.GetRowSize()){
+        throw NoSoultion<T>(A,b);
+    }
     T defaultval = T();
     Vector<T> x(A.GetColSize());
     unordered_map<int,set<int>> parentmap = 
@@ -65,7 +68,7 @@ Vector<T> operator/(const LowTriangular<T> &A,const Vector<T> &b){
             //because it sparse vector
             continue;
         }else if(A(i,i) == defaultval){
-            throw NoSoultion();
+            throw NoSoultion<T>(A,b);
         }else{
             x(i, cordinate / A(i, i));
         }
