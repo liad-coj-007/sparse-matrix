@@ -15,6 +15,8 @@ template<class T>
 class Vector; // Forward declaration
 template<class T>
 class LowTriangular;
+template<class T>
+class UpperTraingular;
 
 
 template<class T>
@@ -280,6 +282,22 @@ class Matrix{
         return vector;
     }
 
+    /**
+     * @brief return true if this matrix 
+     * is upper traingle
+     */
+    bool isUpperTraingle()const{
+        if(m != n){
+            return false;
+        }
+        for(auto it = data.begin(); it != data.end();++it){
+            if(it->first.from > it->first.to){
+                return false;
+            }
+        }
+        return true;
+    }
+
 
     /**
      * @brief return true if this matrix 
@@ -309,6 +327,19 @@ class Matrix{
         LowTriangular<T> lowtraingle(n);
         lowtraingle.data = data;
         return lowtraingle;
+    }
+
+    /**
+     * @brief upper trinagular
+     * conversion
+     */
+    operator UpperTraingular<T>()const{
+        if(!isUpperTraingle()){
+            throw ConversionException();
+        }
+        UpperTraingular<T> uppertraingle(n);
+        uppertraingle.data = data;
+        return uppertraingle;
     }
 
     /**
