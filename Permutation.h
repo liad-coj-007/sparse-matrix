@@ -2,86 +2,120 @@
 #include "Matrix.h"
 #include "Exception/ExceptionMatrix/MatrixOutOfRange.h"
 #include "Exception/ExceptionMatrix/OperatorMultiplyException.h"
-#include "Exception/ExceptionMatrix/InvaildSize.h"
+#include "Exception/SpecailMatrixException/ExcessDenied.h" // Corrected spelling
 
-class Permutation{
-    public:
+template<class T>
+class Permutation : public Matrix<T> { // Added 'public' inheritance
+public:
     /**
-     * @brief constractor of permutation matrix
+     * @brief Constructor of permutation matrix
      * @param size - the size of the matrix
      */
-    Permutation(const int size);
+    Permutation(const int size) : Matrix<T>(size, size) {
+        det = APATHETIC;
+    }
 
     /**
-     * @brief return the size of the matrix
+     * @brief Return the size of the matrix
      */
-    int Size()const;
+    int Size() const {
+        return Matrix<T>::GetRowSize();
+    }
 
     /**
-     * @brief find where is the one on 
-     * this row
-     * @param row where we search the one
+     * @brief Find where the one is on this row
+     * @param row - where we search for the one
      */
-    int FindOne(const int row) const;
+    int FindApathetic(const int row) const {
+        AccessMatrix(row, row);
+        auto it = changes.find(row);
+        return (it == changes.end()) ? row : it->second;
+    }
 
     /**
-     * @brief get the val of matrix in idx (i,j)
+     * @brief Get the value of the matrix at (i,j)
      * @param i - the row of the value
      * @param j - the col of the value
      */
-    const double& operator()(const int i,const int j)const ;
+    const T& operator()(const int i,const int j)const override{
+        auto it = changes.find(i);
+        if(FindApathetic(i) == j){
+            return APATHETIC;
+        }
+        return DEFUALTVALUE;
+    }
+
+    /**
+     * @brief Set a new value to the matrix
+     * @param i - the row we want to change
+     * @param j - the col we want to change
+     * @param val - the value we change to
+     */
+    void operator()(const int i, const int j, const T& value) override {
+        throw ExccessDenided(i, j); // Fixed spelling
+    }
 
     /** 
-    * @brief swap the lines of the permutation matrix
+    * @brief Swap the lines of the permutation matrix
     * @param row1 - the first row we switch
-    * @param row2 -the second row we switch
+    * @param row2 - the second row we switch
     */
-    void SwapLines(const int row1,const int row2);
-    /**
-     * @brief return true if p 
-     * is the identity
-     */
-    bool isIdentity()const;
+    void SwapLines(const int row1, const int row2) {
+        int oneidx1 = FindApathetic(row1);
+        int oneidx2 = FindApathetic(row2);
+        SetMap(row1, oneidx2);
+        SetMap(row2, oneidx1);
+        det = -det;
+    }
 
     /**
-     * @brief get the derminent of the
-     * matrix
+     * @brief Return true if this is the identity matrix
+     */
+    bool isIdentity() const {
+        return changes.empty();
+    }
+
+    /**
+     * @brief Get the determinant of the matrix
      * @return double
      */
-    double Det()const;
+    T Det() const {
+        return det;
+    }
 
-    private:
-    unordered_map<int,int> changes;//the change of lines
-    double det;//detrminet of the matrix
-    int size;
-    //the only possible value
-    static constexpr double zero = 0;
-    static constexpr double one = 1; 
-    /**
-    * @brief format the size of the matrix
-    */
-    string FormatSize()const;
+    void print() const {
+        Matrix<T>::print();
+    }
+
+private:
+    std::unordered_map<int, int> changes; // The change of lines
+    T det; // Determinant of the matrix
+    static constexpr T DEFUALTVALUE = T();
+    static constexpr double APATHETIC = T() + 1;
 
     /**
-     * @brief throw exception on case
-     * we out of range of the matrix
-     * @param i - the row we want access
-     * @param j - the col we want access
+     * @brief Throw exception if we are out of range of the matrix
+     * @param i - the row we want to access
+     * @param j - the col we want to access
      */
-    void AccessMatrix(const int i,const int j)const;
+    void AccessMatrix(const int i, const int j) const {
+        if (i < 0 || i > Size() || j < 0 || j > Size()) { // Fixed bounds check
+            throw MatrixOutOfRange(i, j, Size(), Size());
+        }
+    }
+
     /**
-     * @brief set the new one of the val
+     * @brief Set the new one in the value map
      * @param row - the row we change the one
-     * @param oneidx - the oneidx col where
-     * the one be
+     * @param oneidx - the index of the column where the one is
      */
-    void SetMap(const int row,const int oneidx);
-    /**
-     * @brief do operator print for permutation matrix
-     * @param os - the os we use
-     * @param matrix - the matrix we print
-     */
-    friend ostream& operator<<(ostream &os,const Permutation &matrix);
+    void SetMap(const int row, const int oneidx) {
+        if (row != oneidx) {
+            changes[row] = oneidx;
+            return;
+        }
+        changes.erase(row); // Simplified
+    }
 };
 
 template<class T>
@@ -91,7 +125,7 @@ template<class T>
  * @param P - the permutation matrix
  * @param matrix - the matrix we change
  */
-Matrix<T> operator*(const Permutation &P,const Matrix<T> &matrix){
+Matrix<T> operator*(const Permutation<T> &P,const Matrix<T> &matrix){
     if(P.Size() != matrix.GetRowSize()){
         throw OperatorMultiplyException(P.Size(),P.Size(),
         matrix.GetRowSize(),matrix.GetColSize());
@@ -107,7 +141,7 @@ Matrix<T> operator*(const Permutation &P,const Matrix<T> &matrix){
     Matrix<T> newmatrix(matrix.GetRowSize(),
     matrix.GetColSize());
     for(int i = 1; i <= P.Size(); i++){
-        int newrow = P.FindOne(i);
+        int newrow = P.FindApathetic(i);
         for(auto j : lines[newrow]){
             newmatrix(i,j,matrix(newrow,j));
         }

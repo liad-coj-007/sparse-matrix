@@ -11,6 +11,8 @@
 #include "Exception/ExceptionMatrix/OperatorException.h"
 #include "Exception/ExceptionMatrix/OperatorMultiplyException.h"
 #include "Exception/ExceptionMatrix/ConversionException.h"
+#include <functional> // For std::function
+
 template<class T>
 class Vector; // Forward declaration
 template<class T>
@@ -37,6 +39,7 @@ class Matrix{
         this->m = m;
         CalcEpsilon(accuracy);
     }
+
 
     template<class Function>
     /**
@@ -75,7 +78,7 @@ class Matrix{
      * @param j - the col the user want
      * @return type refernce
      */
-    const T& operator()(const int i,const int j) const {
+    virtual const T& operator()(const int i,const int j) const {
         isAccessAble(i,j);
         if(data.ContainEdge(i,j)){
             return data(i,j);
@@ -418,15 +421,7 @@ class Matrix{
         return (minusep <= val && val <= ep);
     }
 
-    /**
-     * @brief format size for print
-     * @return string
-     */
-    string formatSize()const{
-        ostringstream os;
-        os << m << "x" << n;
-        return os.str();
-    }
+   
 
     /**
      * @brief print operator of matrix
@@ -457,6 +452,17 @@ class Matrix{
         return mat1.GetRowSize() == mat2.GetRowSize()
         && mat1.GetColSize() == mat2.GetColSize()
         && mat1.data == mat2.data;
+    }
+
+    protected:
+    /**
+    * @brief format size for print
+    * @return string
+    */
+    string formatSize()const{
+        ostringstream os;
+        os << m << "x" << n;
+        return os.str();
     }
 };
 
