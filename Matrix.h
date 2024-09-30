@@ -21,6 +21,8 @@ template<class T>
 class UpperTraingular;
 template<class T>
 class Row;
+template<class T>
+class Permutation;
 
 
 template<class T>
@@ -40,6 +42,35 @@ class Matrix{
         this->n = n;
         this->m = m;
         CalcEpsilon(accuracy);
+    }
+
+    /**
+     * @brief constractor copy of permutation
+     * @param permutation - the permutation we copy
+     */
+    Matrix(const Permutation<T> &permutation){
+        m = permutation.m;
+        n = permutation.n;
+        ep = permutation.ep;
+        for(int i = 1; i <= m; i++){
+            int j = permutation.FindApatheticByRow(i);
+            this->operator()(i,j,1);
+        }
+    }
+    /**
+     * @brief do assignment operator of permutation
+     * @param permutation the matrix we copy
+     * 
+     */
+    Matrix<T>& operator=(const Permutation<T> &permutation){
+        m = permutation.m;
+        n = permutation.n;
+        ep = permutation.ep;
+        for(int i = 1; i <= m; i++){
+            int j = permutation.FindApatheticByRow(i);
+            this->operator()(i,j,1);
+        }
+        return *this;
     }
 
 
@@ -154,7 +185,7 @@ class Matrix{
      * @brief get the memory usage of the matrix
      * @return int 
      */
-    size_t MemoryUseage() const{
+    virtual size_t MemoryUseage() const{
         return data.memoryUseage();
     }
 
@@ -171,7 +202,7 @@ class Matrix{
      * @brief return sparse matrix data by graph
      * return graph referance
      */
-    const Graph<int,T>& GetMatrixByGraph() const{
+    virtual  Graph<int,T> GetMatrixByGraph() const{
         return data;
     }
 
@@ -266,7 +297,7 @@ class Matrix{
      * @brief return a transpose matrix
      * @return matrix
      */
-    Matrix<T> operator~() const {
+    virtual Matrix<T> operator~() const {
         Matrix<T> transpose_mat(n,m);
         for( auto it = data.begin();it != data.end();++it){
             transpose_mat(it->first.to,it->first.from,it->second);

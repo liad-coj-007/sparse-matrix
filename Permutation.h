@@ -11,7 +11,8 @@ public:
      * @brief Constructor of permutation matrix
      * @param size - the size of the matrix
      */
-    Permutation(const int size) : Matrix<T>(size, size) {
+    Permutation(const int size,bool accuracy = false) : Matrix<T>(size, 
+    size,accuracy) {
         det = APATHETIC;
     }
 
@@ -33,10 +34,10 @@ public:
     }
 
     /**
-     * @brief Find where the one is on this row
+     * @brief Find where the one is on this col
      * @param col - where we search for the one
      */
-    int FindApatheticByCol(const int col){
+    int FindApatheticByCol(const int col)const {
         AccessMatrix(col, col);
         auto it = changescol.find(col);
         return (it == changescol.end()) ? col :it->second;
@@ -98,6 +99,37 @@ public:
         return det;
     }
 
+    /**
+     * @brief return a transpose matrix
+     * @return matrix
+     */
+    Matrix<T> operator~() const override{
+        Matrix<T> matrix = *this;
+        return ~matrix;
+    }
+
+
+
+    /**
+     * @brief return sparse matrix data by graph
+     * return graph referance
+     */
+    Graph<int,T> GetMatrixByGraph() const override{
+        Matrix<T> matrix = *this;
+        return matrix.GetMatrixByGraph();
+    }
+
+    /**
+     * @brief get the memory usage of the matrix
+     * @return int 
+     */
+    size_t MemoryUseage()const override{
+        size_t total = 0;
+        total += sizeof(changesrow) + sizeof(changescol);
+        total += changesrow.size() * sizeof(pair<int,int>);
+        total += changescol.size() * sizeof(pair<int,int>);
+        return total;
+    }
 
     private:
     std::unordered_map<int, int> changesrow; // The change of lines
@@ -140,6 +172,39 @@ public:
 
 };
 
+
+template < class T>
+/**
+ * @brief do operator + for matrix
+ * @param matrix - the matrix we take
+ * @param P - permutation matrix
+ */
+Matrix<T> operator+(const Matrix<T> &matrix,const Permutation<T> &P){
+    Matrix<T> A = P;
+    return A + matrix;
+}
+
+template < class T>
+/**
+ * @brief do operator + for matrix
+ * @param matrix - the matrix we take
+ * @param P - permutation matrix
+ */
+Matrix<T> operator+(const Permutation<T> &P,const Matrix<T> &matrix){
+    return matrix + P;
+}
+
+template < class T>
+/**
+ * @brief do operator + for matrix
+ * @param P1 - the first matrix we take
+ * @param P2 - the second matrix we take
+ */
+Matrix<T> operator+(const Permutation<T> &P1, const Permutation<T> &P2){
+    Matrix<T> A = P1;
+    return A + P2;
+}
+
 template<class T>
 /**
  * @brief do multiplication between permutation
@@ -172,18 +237,46 @@ Matrix<T> operator*(const Permutation<T> &P,const Matrix<T> &matrix){
 }
 
 template<class T>
-
+/**
+ * @brief do multiplication between permutation
+ * matrix and regular matrix
+ * @param P - the permutation matrix
+ * @param matrix - the matrix we change
+ */
 Matrix<T> operator*(const Matrix<T> &matrix,
 const Permutation<T> &P){
     if(P.Size() != matrix.GetColSize()){
         throw OperatorMultiplyException(P.Size(),P.Size(),
         matrix.GetRowSize(),matrix.GetColSize());
     }
-    
+
     if(P.isIdentity()){
         //in case which we didn't replace
         //lines
         return matrix;
     }
-    return matrix;
+    unordered_map<int,set<int>> cols = matrix.GetMatrixByGraph().OrderSons();
+    Matrix<T> newmatrix(matrix.GetRowSize(),
+    matrix.GetColSize());
+    for(int j = 1; j <= P.Size(); j++){
+        int oneidx = P.FindApatheticByCol(j);
+        for(auto i : cols[oneidx]){
+            newmatrix(i,j,matrix(i,oneidx));
+        }
+    }
+    return newmatrix;
+}
+
+template<class T>
+/**
+ * @brief do multiplication between permutation
+ * matrix and regular matrix
+ * @param P1 - the permutation matrix
+ * @param P2 - the matrix we change
+ */
+Matrix<T> operator*(const Permutation<T> &P1,
+const Permutation<T> &P2){
+   Matrix<T> A = P1;
+   Matrix<T> B = P2;
+   return A*B;
 }
