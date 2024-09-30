@@ -8,9 +8,9 @@
 #include <cmath> 
 #include <algorithm> // For std::max
 #include "Graph.h"
+#include "Row.h"
+#include "Exception/FactorizationException/LUException.h"
 using namespace std;
-
-
 
 template<class T>
 /**
@@ -18,7 +18,7 @@ template<class T>
  * @param num1 - the first num we equal
  * @param num2 - the second num we equal
  */
-const T& AbsoulteMax(const T &num1 ,const T &num2){
+T AbsoulteMax(const T &num1 ,const T &num2){
     return max(abs(num1),abs(num2));
 }
 
@@ -33,7 +33,7 @@ class LU : public Factorization<T> {
           P(matrix.GetColSize()),L(1){
         int n = matrix.GetColSize();
         if(n != matrix.GetRowSize()){
-            //TODO: throw exception
+            throw LUException(matrix.GetRowSize(),n);
         }
 
         L = XMatrix::Identity<T>(n);
@@ -41,12 +41,33 @@ class LU : public Factorization<T> {
         Factorize(A);
     }
 
-    const Matrix<T> GetMatrix(const string &name)override{
-        return L * U;
+    /**
+     * @brief return const refernce of the matrix we want
+     * by his name
+     * @param name - the name of the matrix
+     */
+    const Matrix<T>& operator[](const string &arg ) const override{
+        if(Lname == arg){
+            return L;
+        }
+
+        if(Uname == arg){
+            return U;
+        }
+
+        if(Pname == arg ){
+            return P;
+        }
+
+        return Factorization<T>::operator[](arg);
     }
 
 
     private:
+    static constexpr const char* Lname = "L";
+    static constexpr const char* Uname = "U";
+    static constexpr const char* Pname = "P";
+
     /**
      * @brief factorize the matrix A to lu recursively
      * @param A - the matrix we factorize
@@ -65,10 +86,10 @@ class LU : public Factorization<T> {
             A = Replace(pivotidx,row,A);
         }
         Vector<T> l1(A.GetColSize()-1);
-        Vector<T> u1(A.GetRowSize()-1);
+        Row<T> u1(A.GetRowSize()-1);
         SetCol(l1,u1,A,row);
         Matrix<T> subA = BuildSubMatrix(A);
-        subA  = subA + l1*(~u1);
+        subA  = subA + l1*u1;
         Factorize(subA,row+1); 
     }
 
@@ -84,11 +105,8 @@ class LU : public Factorization<T> {
         }
         return submatrix;
     }
-
     
-
-
-    void SetCol(Vector<T> &l1,Vector<T> &u1,const Matrix<T> &A,
+    void SetCol(Vector<T> &l1,Row<T> &u1,const Matrix<T> &A,
     const int row){
         U(row,row,A(FIRSTIDX,FIRSTIDX));
         set<int> firstrow = A.GetMatrixByGraph().Parent(FIRSTIDX);
@@ -125,9 +143,9 @@ class LU : public Factorization<T> {
      * pivot
      * @param col - the first col on the matrix
      */
-    int partialPivoting(const Matrix<T> &A,
-    const set<int> &first_col)const {
-        T maxvalue = A(FIRSTIDX,FIRSTIDX);
+    int partialPivoting(const  Matrix<T> &A,
+     const set<int> &first_col)const {
+        T maxvalue = T();
         int maxrowidx = FIRSTIDX;
         for(auto j : first_col){
             if(AbsoulteMax<T>(maxvalue,A(j,FIRSTIDX)) != maxvalue){

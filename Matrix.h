@@ -185,7 +185,7 @@ class Matrix{
      * @brief get the memory usage of the matrix
      * @return int 
      */
-    virtual size_t MemoryUseage() const{
+    size_t MemoryUseage() const{
         return data.memoryUseage();
     }
 
@@ -297,7 +297,7 @@ class Matrix{
      * @brief return a transpose matrix
      * @return matrix
      */
-    virtual Matrix<T> operator~() const {
+    Matrix<T> operator~() const {
         Matrix<T> transpose_mat(n,m);
         for( auto it = data.begin();it != data.end();++it){
             transpose_mat(it->first.to,it->first.from,it->second);
@@ -410,16 +410,7 @@ class Matrix{
     int m;
     int n;
     double ep;//epsilon of data
-    /**
-     * @brief check if we can got to this place on the matrix
-     * @param i - the row we want to get
-     * @param j - the col we want to get
-     */
-    void isAccessAble(const int i,const int j)const {
-        if(i < 1 || j < 1 || i > m || j > n){
-            throw MatrixOutOfRange(i,j,m,n);
-        }
-    }
+
  
 
     /**
@@ -511,6 +502,17 @@ class Matrix{
         ostringstream os;
         os << m << "x" << n;
         return os.str();
+    }
+    
+    /**
+     * @brief check if we can got to this place on the matrix
+     * @param i - the row we want to get
+     * @param j - the col we want to get
+     */
+    void isAccessAble(const int i,const int j)const {
+        if(i < 1 || j < 1 || i > m || j > n){
+            throw MatrixOutOfRange(i,j,m,n);
+        }
     }
 };
 

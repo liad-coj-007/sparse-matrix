@@ -1,5 +1,6 @@
 #pragma once
 #include "Matrix.h"
+#include <stdexcept>
 
 template<class T>
 class Factorization{
@@ -23,9 +24,13 @@ class Factorization{
     /**
      * @brief return const refernce of the matrix we want
      * by his name
-     * @param name - the name of the matrix
+     * @param arg
+     * the name of the matrix
      */
-    virtual const Matrix<T> GetMatrix(const string &name) = 0;
+    virtual const Matrix<T>& operator[](const string &arg) const{
+        throw invalid_argument("The arg isn't exsit on this system");
+    }
+    virtual ~Factorization() = default;
     private:
     string factorname;
 };

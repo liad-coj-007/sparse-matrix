@@ -14,6 +14,9 @@ public:
     Permutation(const int size,bool accuracy = false) : Matrix<T>(size, 
     size,accuracy) {
         det = APATHETIC;
+        for(int i = 1; i <= Size();i++){
+            Matrix<T>::operator()(i,i,APATHETIC);
+        }
     }
 
     /**
@@ -81,6 +84,10 @@ public:
         SetMapByCol(oneidx1row,oneidx2col);
         SetMapByCol(oneidx2row,oneidx1col);
         det = -det;
+        Matrix<T>::operator()(row1,oneidx1row,DEFUALTVALUE);
+        Matrix<T>::operator()(row2,oneidx2row,DEFUALTVALUE);
+        Matrix<T>::operator()(row1,oneidx2col,APATHETIC);
+        Matrix<T>::operator()(row2,oneidx1col,APATHETIC);
     }
 
 
@@ -171,112 +178,3 @@ public:
     }
 
 };
-
-
-template < class T>
-/**
- * @brief do operator + for matrix
- * @param matrix - the matrix we take
- * @param P - permutation matrix
- */
-Matrix<T> operator+(const Matrix<T> &matrix,const Permutation<T> &P){
-    Matrix<T> A = P;
-    return A + matrix;
-}
-
-template < class T>
-/**
- * @brief do operator + for matrix
- * @param matrix - the matrix we take
- * @param P - permutation matrix
- */
-Matrix<T> operator+(const Permutation<T> &P,const Matrix<T> &matrix){
-    return matrix + P;
-}
-
-template < class T>
-/**
- * @brief do operator + for matrix
- * @param P1 - the first matrix we take
- * @param P2 - the second matrix we take
- */
-Matrix<T> operator+(const Permutation<T> &P1, const Permutation<T> &P2){
-    Matrix<T> A = P1;
-    return A + P2;
-}
-
-template<class T>
-/**
- * @brief do multiplication between permutation
- * matrix and regular matrix
- * @param P - the permutation matrix
- * @param matrix - the matrix we change
- */
-Matrix<T> operator*(const Permutation<T> &P,const Matrix<T> &matrix){
-    if(P.Size() != matrix.GetRowSize()){
-        throw OperatorMultiplyException(P.Size(),P.Size(),
-        matrix.GetRowSize(),matrix.GetColSize());
-    }
-    if(P.isIdentity()){
-        //in case which we didn't replace
-        //lines
-        return matrix;
-    }
-
-    unordered_map<int,set<int>>lines = 
-    matrix.GetMatrixByGraph().OrderParents();
-    Matrix<T> newmatrix(matrix.GetRowSize(),
-    matrix.GetColSize());
-    for(int i = 1; i <= P.Size(); i++){
-        int newrow = P.FindApatheticByRow(i);
-        for(auto j : lines[newrow]){
-            newmatrix(i,j,matrix(newrow,j));
-        }
-    }
-    return newmatrix;
-}
-
-template<class T>
-/**
- * @brief do multiplication between permutation
- * matrix and regular matrix
- * @param P - the permutation matrix
- * @param matrix - the matrix we change
- */
-Matrix<T> operator*(const Matrix<T> &matrix,
-const Permutation<T> &P){
-    if(P.Size() != matrix.GetColSize()){
-        throw OperatorMultiplyException(P.Size(),P.Size(),
-        matrix.GetRowSize(),matrix.GetColSize());
-    }
-
-    if(P.isIdentity()){
-        //in case which we didn't replace
-        //lines
-        return matrix;
-    }
-    unordered_map<int,set<int>> cols = matrix.GetMatrixByGraph().OrderSons();
-    Matrix<T> newmatrix(matrix.GetRowSize(),
-    matrix.GetColSize());
-    for(int j = 1; j <= P.Size(); j++){
-        int oneidx = P.FindApatheticByCol(j);
-        for(auto i : cols[oneidx]){
-            newmatrix(i,j,matrix(i,oneidx));
-        }
-    }
-    return newmatrix;
-}
-
-template<class T>
-/**
- * @brief do multiplication between permutation
- * matrix and regular matrix
- * @param P1 - the permutation matrix
- * @param P2 - the matrix we change
- */
-Matrix<T> operator*(const Permutation<T> &P1,
-const Permutation<T> &P2){
-   Matrix<T> A = P1;
-   Matrix<T> B = P2;
-   return A*B;
-}
