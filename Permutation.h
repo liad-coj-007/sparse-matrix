@@ -26,10 +26,20 @@ public:
      * @brief Find where the one is on this row
      * @param row - where we search for the one
      */
-    int FindApathetic(const int row) const {
+    int FindApatheticByRow(const int row) const {
         AccessMatrix(row, row);
-        auto it = changes.find(row);
-        return (it == changes.end()) ? row : it->second;
+        auto it = changesrow.find(row);
+        return (it == changesrow.end()) ? row : it->second;
+    }
+
+    /**
+     * @brief Find where the one is on this row
+     * @param col - where we search for the one
+     */
+    int FindApatheticByCol(const int col){
+        AccessMatrix(col, col);
+        auto it = changescol.find(col);
+        return (it == changescol.end()) ? col :it->second;
     }
 
     /**
@@ -38,8 +48,8 @@ public:
      * @param j - the col of the value
      */
     const T& operator()(const int i,const int j)const override{
-        auto it = changes.find(i);
-        if(FindApathetic(i) == j){
+        auto it = changesrow.find(i);
+        if(FindApatheticByRow(i) == j){
             return APATHETIC;
         }
         return DEFUALTVALUE;
@@ -61,18 +71,23 @@ public:
     * @param row2 - the second row we switch
     */
     void SwapLines(const int row1, const int row2) {
-        int oneidx1 = FindApathetic(row1);
-        int oneidx2 = FindApathetic(row2);
-        SetMap(row1, oneidx2);
-        SetMap(row2, oneidx1);
+        int oneidx1row = FindApatheticByRow(row1);
+        int oneidx2row = FindApatheticByRow(row2);
+        SetMapRow(row1, oneidx2row);
+        SetMapRow(row2, oneidx1row);
+        int oneidx1col = FindApatheticByCol(oneidx1row);
+        int oneidx2col = FindApatheticByCol(oneidx2row);
+        SetMapByCol(oneidx1row,oneidx2col);
+        SetMapByCol(oneidx2row,oneidx1col);
         det = -det;
     }
+
 
     /**
      * @brief Return true if this is the identity matrix
      */
     bool isIdentity() const {
-        return changes.empty();
+        return changesrow.empty();
     }
 
     /**
@@ -83,15 +98,13 @@ public:
         return det;
     }
 
-    void print() const {
-        Matrix<T>::print();
-    }
 
-private:
-    std::unordered_map<int, int> changes; // The change of lines
+    private:
+    std::unordered_map<int, int> changesrow; // The change of lines
+    std::unordered_map<int,int> changescol;
     T det; // Determinant of the matrix
     static constexpr T DEFUALTVALUE = T();
-    static constexpr double APATHETIC = T() + 1;
+    static constexpr T APATHETIC = T() + 1;
 
     /**
      * @brief Throw exception if we are out of range of the matrix
@@ -109,13 +122,22 @@ private:
      * @param row - the row we change the one
      * @param oneidx - the index of the column where the one is
      */
-    void SetMap(const int row, const int oneidx) {
+    void SetMapRow(const int row, const int oneidx) {
         if (row != oneidx) {
-            changes[row] = oneidx;
+            changesrow[row] = oneidx;
             return;
         }
-        changes.erase(row); // Simplified
+        changesrow.erase(row); // Simplified
     }
+
+    void SetMapByCol(const int col,const int oneidx){
+        if(col != oneidx){
+            changescol[col] = oneidx;
+            return;
+        }
+        changescol.erase(col);
+    }
+
 };
 
 template<class T>
@@ -141,10 +163,27 @@ Matrix<T> operator*(const Permutation<T> &P,const Matrix<T> &matrix){
     Matrix<T> newmatrix(matrix.GetRowSize(),
     matrix.GetColSize());
     for(int i = 1; i <= P.Size(); i++){
-        int newrow = P.FindApathetic(i);
+        int newrow = P.FindApatheticByRow(i);
         for(auto j : lines[newrow]){
             newmatrix(i,j,matrix(newrow,j));
         }
     }
     return newmatrix;
+}
+
+template<class T>
+
+Matrix<T> operator*(const Matrix<T> &matrix,
+const Permutation<T> &P){
+    if(P.Size() != matrix.GetColSize()){
+        throw OperatorMultiplyException(P.Size(),P.Size(),
+        matrix.GetRowSize(),matrix.GetColSize());
+    }
+    
+    if(P.isIdentity()){
+        //in case which we didn't replace
+        //lines
+        return matrix;
+    }
+    return matrix;
 }
