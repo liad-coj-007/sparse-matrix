@@ -29,7 +29,7 @@ class LU : public Factorization<T> {
     public:
     LU(const Matrix<T>& matrix)
         : Factorization<T>(matrix, "LU"),
-          U(matrix.GetRowSize(), matrix.GetColSize()),
+          U(matrix.GetRowSize()),
           P(matrix.GetColSize()),L(1){
         int n = matrix.GetColSize();
         if(n != matrix.GetRowSize()){
@@ -53,8 +53,8 @@ class LU : public Factorization<T> {
      * @param row - the number of row we factorize
      */
     void Factorize(Matrix<T> &A,const int row = FIRSTIDX){
-        U(row,row,A(FIRSTIDX,FIRSTIDX));
         if(A.GetColSize() == FIRSTIDX){
+            U(row,row,A(FIRSTIDX,FIRSTIDX));
             return;
         }
 
@@ -76,7 +76,8 @@ class LU : public Factorization<T> {
         Matrix<T> submatrix(A.GetRowSize() - 1 ,A.GetColSize() -1);
         const Graph<int,T> &data = A.GetMatrixByGraph();
         for(auto it = data.begin();it != data.end(); ++it){
-            if(it->first.from == FIRSTIDX || it->first.to == FIRSTIDX){
+            if(it->first.from == FIRSTIDX || 
+            it->first.to == FIRSTIDX){
                 continue;
             }
             submatrix(it->first.from-1,it->first.to-1,it->second);
@@ -89,16 +90,21 @@ class LU : public Factorization<T> {
 
     void SetCol(Vector<T> &l1,Vector<T> &u1,const Matrix<T> &A,
     const int row){
-        set<int> firstrow = A.GetMatrixByGraph().Parent(FIRSTIDX);
         U(row,row,A(FIRSTIDX,FIRSTIDX));
+        set<int> firstrow = A.GetMatrixByGraph().Parent(FIRSTIDX);
+        set<int> firstcol = A.GetMatrixByGraph().Son(FIRSTIDX);
         for(auto j : firstrow){
             if(j == 1){
                 continue;
             }
             u1(j-1,A(FIRSTIDX,j));
+            U(row,row + j -1,u1[j-1]);
+        }
+
+        for(auto j : firstcol){
+            if(j == 1){continue;}
             l1(j-1,-A(j,FIRSTIDX)/A(FIRSTIDX,FIRSTIDX));
-            U(row,j+row-1,u1[j-1]);
-            L(j+row-1,row,-l1[j-1]);
+            L(row+j - 1,row,-l1[j-1]);
         }
     }
 
@@ -107,7 +113,7 @@ class LU : public Factorization<T> {
         if(P.Size() == A.GetRowSize()){
             return P*A;
         }
-        Permutation swap(A.GetRowSize());
+        Permutation<T> swap(A.GetRowSize());
         swap.SwapLines(pivotrow,FIRSTIDX);
         return swap*A;
     }
@@ -140,8 +146,8 @@ class LU : public Factorization<T> {
     }
 
     LowTriangular<T> L;
-    Matrix<T> U;
-    Permutation P;
+    UpperTraingular<T> U;
+    Permutation<T> P;
     static constexpr T ONE = T()+1; 
     static constexpr int FIRSTIDX = 1;
 };
