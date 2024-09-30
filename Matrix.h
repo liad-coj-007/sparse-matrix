@@ -19,6 +19,8 @@ template<class T>
 class LowTriangular;
 template<class T>
 class UpperTraingular;
+template<class T>
+class Row;
 
 
 template<class T>
@@ -285,6 +287,15 @@ class Matrix{
         return vector;
     }
 
+    operator Row<T>()const{
+        if(!isRow()){
+            throw ConversionException();
+        }
+        Row<T> row(n);
+        row.data = data;
+        return row;
+    }
+     
     /**
      * @brief return true if this matrix 
      * is upper traingle
@@ -301,6 +312,13 @@ class Matrix{
         return true;
     }
 
+    /**
+     * @brief return true if this matrix 
+     * is row 
+     */
+    bool isRow() const{
+        return this->m == 1;
+    }
 
     /**
      * @brief return true if this matrix 
@@ -310,7 +328,6 @@ class Matrix{
         if(m != n){
             return false;
         }
-
         for(auto it = data.begin(); it != data.end();++it){
             if(it->first.from < it->first.to){
                 return false;
