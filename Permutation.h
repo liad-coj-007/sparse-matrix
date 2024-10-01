@@ -105,39 +105,7 @@ public:
     T Det() const {
         return det;
     }
-
-    /**
-     * @brief return a transpose matrix
-     * @return matrix
-     */
-    Matrix<T> operator~() const override{
-        Matrix<T> matrix = *this;
-        return ~matrix;
-    }
-
-
-
-    /**
-     * @brief return sparse matrix data by graph
-     * return graph referance
-     */
-    Graph<int,T> GetMatrixByGraph() const override{
-        Matrix<T> matrix = *this;
-        return matrix.GetMatrixByGraph();
-    }
-
-    /**
-     * @brief get the memory usage of the matrix
-     * @return int 
-     */
-    size_t MemoryUseage()const override{
-        size_t total = 0;
-        total += sizeof(changesrow) + sizeof(changescol);
-        total += changesrow.size() * sizeof(pair<int,int>);
-        total += changescol.size() * sizeof(pair<int,int>);
-        return total;
-    }
-
+    
     private:
     std::unordered_map<int, int> changesrow; // The change of lines
     std::unordered_map<int,int> changescol;
