@@ -4,13 +4,13 @@
 #include "UpperTraingular.h"
 #include "Permutation.h"
 #include "Factorization.h"
-#include "XMatrix.h"
 #include <cmath> 
 #include <algorithm> // For std::max
 #include "Graph.h"
 #include "Row.h"
 #include "Exception/FactorizationException/LUException.h"
 using namespace std;
+
 
 template<class T>
 /**
@@ -138,9 +138,7 @@ class LU : public Factorization<T> {
 
     Matrix<T> Replace(const int pivotrow, const int row,Matrix<T>& A){
         P.SwapLines(pivotrow + row -1,row);
-        Permutation<T> swapL(P.Size());
         ReplaceL(pivotrow + row -1,row);
-
         if(P.Size() == A.GetRowSize()){
             return P*A;
         }

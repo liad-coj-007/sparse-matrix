@@ -17,8 +17,10 @@ template<class T>
  */
 
 bool areAlmostEqual(const T &var1,const T &var2,
-const T epsilon = static_cast<T>(1e-9)){
+const double epsilon = 1e-5){
+
     return std::abs(var1 - var2) < epsilon;
+
 }
 
 template<class V,class W>

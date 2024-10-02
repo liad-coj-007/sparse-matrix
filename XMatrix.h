@@ -2,6 +2,9 @@
 using namespace std;
 #include "Matrix.h"
 #include <algorithm> // Required for std::min
+#include "Exception/ExceptionMatrix/InverseFailed.h"
+
+
 
 class XMatrix{
     public:
@@ -21,6 +24,47 @@ class XMatrix{
             matrix(i,i,val);
         }
         return matrix;
+    }
+
+    template<class T>
+    /**
+     * @brief return the inverse matrix of the matrix
+     * @param matrix - the matrix we search her inverse
+     * 
+     */
+    static Matrix<T> Inv(const Matrix<T> &matrix){
+        if(matrix.GetRowSize() != matrix.GetColSize()){
+            throw InverseFailed();
+        }
+
+        LU lu(matrix);
+        Matrix<T> inv(matrix.GetRowSize(),matrix.GetColSize());
+        try{
+            for(int i = 1; i <= matrix.GetColSize();i++){
+                Graph<int,T> ci = lu.Solve(
+                    XMatrix::e<T>(i,matrix.GetColSize())).GetMatrixByGraph();
+                for(auto it = ci.begin();it != ci.end();++it){
+                    inv(it->first.from,i,it->second);
+                }
+            }
+        }catch(const exception &e){
+            throw InverseFailed();
+        }
+        return inv;
+    }
+    
+
+    template<class T>
+    /**
+     * @brief return a vector ei 
+     * @param idx - when we put the apathtic
+     * @param size - the size of the vector
+     */
+    static Vector<T> e(const int idx,const int size){
+        const T apathtic = T()+1;
+        Vector<T> ei(size);
+        ei(idx,apathtic);
+        return ei;
     }
 
     template<class T>
@@ -81,11 +125,15 @@ class XMatrix{
         }
     }
 
+    template<class T>
     /**
      * @brief build the identity matrix
      * @return matrix
      */
-    static Matrix<double> Identity(const int size);
+    static Matrix<T> Identity(const int size){
+        return XMatrix::Diagonal<T>(size,size,T()+1);
+    }
+    
     private:
     template<class T,typename ...Args>
     /**
