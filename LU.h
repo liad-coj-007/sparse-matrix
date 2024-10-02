@@ -42,6 +42,17 @@ class LU : public Factorization<T> {
     }
 
     /**
+     * @brief get the vector of soultion using 
+     * lu factorization
+     * @param b - the vactor we find his soultion
+     */
+    Vector<T> Solve(const Vector<T> &b)const{
+        Vector<T> pb = P*b;
+        Vector<T> y = L / pb;
+        return U/y;
+    }
+
+    /**
      * @brief return const refernce of the matrix we want
      * by his name
      * @param name - the name of the matrix
@@ -81,12 +92,11 @@ class LU : public Factorization<T> {
 
         set<int> first_col = A.GetMatrixByGraph().Son(FIRSTIDX);
         int pivotidx = partialPivoting(A,first_col);
-        Matrix<T> pivotmatrix(1,1);
         if(pivotidx != FIRSTIDX){
             A = Replace(pivotidx,row,A);
         }
-        Vector<T> l1(A.GetColSize()-1);
-        Row<T> u1(A.GetRowSize()-1);
+        Vector<T> l1(A.GetRowSize()-1);
+        Row<T> u1(A.GetColSize()-1);
         SetCol(l1,u1,A,row);
         Matrix<T> subA = BuildSubMatrix(A);
         subA  = subA + l1*u1;
@@ -128,13 +138,32 @@ class LU : public Factorization<T> {
 
     Matrix<T> Replace(const int pivotrow, const int row,Matrix<T>& A){
         P.SwapLines(pivotrow + row -1,row);
+        Permutation<T> swapL(P.Size());
+        ReplaceL(pivotrow + row -1,row);
+
         if(P.Size() == A.GetRowSize()){
             return P*A;
         }
         Permutation<T> swap(A.GetRowSize());
         swap.SwapLines(pivotrow,FIRSTIDX);
+       
         return swap*A;
     }
+
+
+    /**
+     * @brief replace L lines cordinates
+     * @param pivotrow - the first row we switch
+     * @param row - the second row we switch
+     */
+    void ReplaceL(const int pivotrow,const int row){
+        for(int i = 1; i < row;i++){
+            T val = L(pivotrow,i);
+            L(pivotrow,i,L(row,i));
+            L(row,i,val);
+        }
+    }
+
 
     /**
      * @brief get the first col of matrix

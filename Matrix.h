@@ -12,6 +12,7 @@
 #include "Exception/ExceptionMatrix/OperatorMultiplyException.h"
 #include "Exception/ExceptionMatrix/ConversionException.h"
 #include <functional> // For std::function
+#include <stdexcept>
 
 template<class T>
 class Vector; // Forward declaration
@@ -23,7 +24,10 @@ template<class T>
 class Row;
 template<class T>
 class Permutation;
-
+template<class T>
+class LU;
+template<class T>
+class NoSoultion;
 
 template<class T>
 class Matrix{
@@ -229,6 +233,7 @@ class Matrix{
     void setIterator(const Iterator &begin,const Iterator &end){
         setIterator(1,begin,end);
     }
+
     template<class Iterator>
     /**
      * @brief set matrix val by a iterator
@@ -503,7 +508,7 @@ class Matrix{
         os << m << "x" << n;
         return os.str();
     }
-    
+
     /**
      * @brief check if we can got to this place on the matrix
      * @param i - the row we want to get
@@ -515,8 +520,6 @@ class Matrix{
         }
     }
 };
-
-
 
 template<class T>
 /**
@@ -563,6 +566,25 @@ Matrix<T> operator*(const Matrix<T> &mat,const T &exp){
     return exp*mat;
 }
 
+template<class T>
+/**
+ * @brief solve Ax = b
+ * @param A - the matrix we solve for
+ * @param b - the vector we want to equal to
+ * @return vector x that represent the solution
+ */
+Vector<T> operator/(const Matrix<T> &A,const Vector<T> &b){
+    if(A.GetColSize() != A.GetRowSize()){
+        throw runtime_error("this version cannot contain rectangle solve");
+    }
+
+    LU lu(A);
+    try{
+        return lu.Solve(b);   
+    }catch(const exception &e){
+        throw NoSoultion<T>(A,b);
+    }
+}
 
 template<class T>
 /**

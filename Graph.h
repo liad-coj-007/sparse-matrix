@@ -4,6 +4,23 @@
 #include <algorithm> // for std::max and std::min
 #include <iostream> // For std::cout
 #include "Exception/ExceptionGraph/EdgeNotExsit.h"
+#include <cmath>
+#include <type_traits>
+
+template<class T>
+/**
+ * @brief equal two vals and return true if it
+ * almost equal
+ * @param var1 - the first val we equal
+ * @param var2 - the second val we equal
+ * @param epsilon  - the epsilon we use
+ */
+
+bool areAlmostEqual(const T &var1,const T &var2,
+const T epsilon = static_cast<T>(1e-9)){
+    return std::abs(var1 - var2) < epsilon;
+}
+
 template<class V,class W>
 class Graph{
     public:
@@ -43,6 +60,8 @@ class Graph{
         }
         return parentmap;
     }
+
+    
 
     /**
      * @brief return a set of vertex that goes parent -> other vertex
@@ -107,6 +126,13 @@ class Graph{
      */
     int degout(const V &vertex)const {
         return Parent(vertex).size();
+    }
+
+    /**
+     * @brief return number of edges on the graph
+     */
+    int getNumEdges() const{
+        return graph.size();
     }
 
 
@@ -304,7 +330,20 @@ class Graph{
      */
     friend bool operator==(const Graph &graph1, 
     const Graph &graph2){
-        return graph1.graph == graph2.graph;
-    }
+        if(graph1.size() != graph2.size()){
+            return false;
+        }
+
+        for(auto &pair : graph1.graph){
+            auto it = graph2.graph.find(pair.first);
+            if(it == graph2.graph.end() || 
+            !areAlmostEqual<W>(it->second,pair.second)){
+                return false;
+            }
+        }
+        return true;
+    } 
+
+
 };
 
